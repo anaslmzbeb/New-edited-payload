@@ -91,10 +91,15 @@ func (this *Api) ReadLine() (string, error) {
 	bufPos := 0
 
 	for {
+		if bufPos >= len(buf) {
+			return "", fmt.Errorf("input line too long (max 1024 bytes)")
+		}
+
 		n, err := this.conn.Read(buf[bufPos : bufPos+1])
 		if err != nil || n != 1 {
 			return "", err
 		}
+
 		if buf[bufPos] == '\r' || buf[bufPos] == '\t' || buf[bufPos] == '\x09' {
 			bufPos--
 		} else if buf[bufPos] == '\n' || buf[bufPos] == '\x00' {
@@ -102,5 +107,4 @@ func (this *Api) ReadLine() (string, error) {
 		}
 		bufPos++
 	}
-	return string(buf), nil
 }
